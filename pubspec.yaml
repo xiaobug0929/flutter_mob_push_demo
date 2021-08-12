@@ -1,5 +1,5 @@
 name: push_demos
-description: 推送测试合计
+description: mob推送测试
 
 # The following line prevents the package from being accidentally published to
 # pub.dev using `pub publish`. This is preferred for private packages.
