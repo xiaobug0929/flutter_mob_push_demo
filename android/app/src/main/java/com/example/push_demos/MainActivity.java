@@ -60,12 +60,11 @@ public class MainActivity extends FlutterActivity {
         LastPushMessageCache.msgs.clear();
         //解析scheme中的数据,目前已测试:小米,华为,鸿蒙,原生Android,oppo
         String schemeData = null;
-        //如果是oppo手机
-        if ("oppo".equalsIgnoreCase(Build.BRAND)) {
-            Uri data = intent.getData();
-            if (data != null) {
-                schemeData = data.getQueryParameter("schemeData");
-            }
+
+        //oppo手机
+        Uri data = intent.getData();
+        if (data != null) {
+            schemeData = data.getQueryParameter("schemeData");
         }
 
         if (TextUtils.isEmpty(schemeData)) {
