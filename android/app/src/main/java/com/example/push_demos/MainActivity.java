@@ -1,13 +1,14 @@
 package com.example.push_demos;
 
 import android.content.Intent;
+import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
+import android.text.TextUtils;
+import android.util.Log;
 
 import androidx.annotation.NonNull;
 
-import com.mob.pushsdk.MobPushUtils;
-
-import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -45,24 +46,53 @@ public class MainActivity extends FlutterActivity {
      * @param intent
      */
     public void handlePushMsg(Intent intent) {
+        if (intent == null) {
+            return;
+        }
+//        Bundle extras1 = intent.getExtras();
+//        Set<String> keySet = extras1.keySet();
+//        for (String key : keySet) {
+//            String value = extras1.getString(key);
+//            Log.e(TAG, "handlePushMsg: key,value:" + key + "," + value);
+//        }
+
         //清除本地消息缓存
         LastPushMessageCache.msgs.clear();
-        //解析intent
-        JSONArray var2 = MobPushUtils.parseMainPluginPushIntent(intent);
+        //解析scheme中的数据,目前已测试:小米,华为,鸿蒙,原生Android,oppo
+        String schemeData = null;
+        //如果是oppo手机
+        if ("oppo".equalsIgnoreCase(Build.BRAND)) {
+            Uri data = intent.getData();
+            if (data != null) {
+                schemeData = data.getQueryParameter("schemeData");
+            }
+        }
+
+        if (TextUtils.isEmpty(schemeData)) {
+            Bundle extras = intent.getExtras();
+            if (extras != null && extras.containsKey("schemeData")) {
+                schemeData = extras.getString("schemeData");
+            }
+        }
+
+        Log.e(TAG, "handlePushMsg: schemeData:" + schemeData);
+        //没有拿到scheme中的数据
+        if (TextUtils.isEmpty(schemeData)) {
+            return;
+        }
+
         try {
-            if (var2.length() > 0) {
-                JSONObject o = var2.getJSONObject(0);
-                //遍历并存储新收到的推送消息
-                Iterator<String> keys = o.keys();
-                while (keys.hasNext()) {
-                    String key = keys.next();
-                    Object value = o.get(key);
-                    LastPushMessageCache.msgs.put(key, value.toString());
-                }
-                //向flutter发送接收到的推送消息
-                if (pushMessagePlugin != null) {
-                    pushMessagePlugin.sendPushMessage();
-                }
+            JSONObject o = new JSONObject(schemeData);
+            //遍历scheme中的数据
+            Iterator<String> keys = o.keys();
+            while (keys.hasNext()) {
+                String key = keys.next();
+                Object value = o.get(key);
+                LastPushMessageCache.msgs.put(key, value.toString());
+            }
+            //向flutter发送接收到的推送消息
+            if (pushMessagePlugin != null) {
+                pushMessagePlugin.sendPushMessage();
             }
         } catch (JSONException e) {
             e.printStackTrace();

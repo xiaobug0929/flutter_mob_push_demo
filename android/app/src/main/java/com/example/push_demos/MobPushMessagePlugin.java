@@ -1,5 +1,7 @@
 package com.example.push_demos;
 
+import android.util.Log;
+
 import androidx.annotation.NonNull;
 
 import io.flutter.plugin.common.BinaryMessenger;
@@ -34,6 +36,7 @@ public class MobPushMessagePlugin implements MethodChannel.MethodCallHandler {
      * 向flutter发送推送消息
      */
     public void sendPushMessage() {
+        Log.e(TAG, "sendPushMessage: " + LastPushMessageCache.msgs);
         if (!LastPushMessageCache.msgs.isEmpty()) {
             methodChannel.invokeMethod("mobPushMessageCallback", LastPushMessageCache.msgs);
         }

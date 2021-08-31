@@ -11,6 +11,7 @@ class MessagePage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    print('MessagePage build');
     return Scaffold(
       appBar: AppBar(
         title: Text('消息页面'),
